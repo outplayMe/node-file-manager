@@ -1,16 +1,10 @@
 import { createInterface } from 'node:readline';
-import { chdir, stdin, stdout, cwd, argv, env } from 'node:process';
+import { stdin, stdout, argv, env } from 'node:process';
 import { dirname, resolve } from 'node:path';
-import { access, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
+import consoleColors from './colors.js';
 
-const consoleColors = {
-  red: '\x1b[31m',
-  yellow: '\x1b[33m',
-  green: `\x1b[32m`,
-  reset: `\x1b[0m`,
-};
-
-let currentDirectory = env.HOME; // одно и то же с os.homeDir()
+let currentDirectory = env.HOME;
 
 const rl = createInterface({
   input: stdin,
@@ -24,6 +18,22 @@ const parseUsername = () => {
 };
 
 const username = parseUsername();
+
+rl.on('line', async (input) => {
+  if (input.trim() === '.exit') {
+    handleExit();
+  } else {
+    await handleUserCommand(input);
+    rl.prompt();
+  }
+});
+rl.on('SIGINT', () => handleExit());
+
+console.log(
+  `Welcome to the File Manager, ${consoleColors.red}${username}${consoleColors.reset}!`
+);
+
+rl.prompt();
 
 const handleExit = () => {
   console.log(
@@ -77,19 +87,3 @@ const handleUserCommand = async (userInput) => {
       break;
   }
 };
-
-rl.on('line', async (input) => {
-  if (input.trim() === '.exit') {
-    handleExit();
-  } else {
-    await handleUserCommand(input);
-    rl.prompt();
-  }
-});
-
-rl.on('SIGINT', () => handleExit());
-
-console.log(
-  `Welcome to the File Manager, ${consoleColors.red}${username}${consoleColors.reset}!`
-);
-rl.prompt();
