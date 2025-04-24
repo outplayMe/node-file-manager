@@ -1,5 +1,6 @@
 import { createInterface } from 'node:readline';
 import { chdir, stdin, stdout, cwd, argv, env } from 'node:process';
+import { dirname } from 'node:path';
 
 const consoleColors = {
   red: '\x1b[31m',
@@ -8,7 +9,7 @@ const consoleColors = {
   reset: `\x1b[0m`,
 };
 
-let currentDirectory = env.HOME;
+let currentDirectory = env.HOME; // одно и то же с os.homeDir()
 
 const rl = createInterface({
   input: stdin,
@@ -31,10 +32,22 @@ const handleExit = () => {
   rl.close();
 };
 
+const handleUserCommand = (command) => {
+  switch (command) {
+    case 'up':
+      currentDirectory = dirname(currentDirectory);
+      rl.setPrompt(
+        consoleColors.green + currentDirectory + '>' + consoleColors.reset
+      );
+      break;
+  }
+};
+
 rl.on('line', (input) => {
   if (input.trim() === '.exit') {
     handleExit();
   } else {
+    handleUserCommand(input);
     rl.prompt();
   }
 });
