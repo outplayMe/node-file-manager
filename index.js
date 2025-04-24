@@ -32,8 +32,11 @@ const handleExit = () => {
 };
 
 rl.on('line', (input) => {
-  if (input.trim() === '.exit') handleExit();
-  rl.prompt();
+  if (input.trim() === '.exit') {
+    handleExit();
+  } else {
+    rl.prompt();
+  }
 });
 
 rl.on('SIGINT', () => handleExit());
