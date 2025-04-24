@@ -1,6 +1,7 @@
 import { createInterface } from 'node:readline';
 import { chdir, stdin, stdout, cwd, argv, env } from 'node:process';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { access, stat } from 'node:fs/promises';
 
 const consoleColors = {
   red: '\x1b[31m',
@@ -26,13 +27,13 @@ const username = parseUsername();
 
 const handleExit = () => {
   console.log(
-    `\nThank you for using File Manager, ${consoleColors.red}${username}${consoleColors.reset}, goodbye!`
+    `\nThank you for using File Manager, ${consoleColors.red}${username}${consoleColors.reset}, goodbye!\n`
   );
-  rl.write('\n');
   rl.close();
 };
 
-const handleUserCommand = (command) => {
+const handleUserCommand = async (userInput) => {
+  const [command, ...args] = userInput.trim().split(' ');
   switch (command) {
     case 'up':
       currentDirectory = dirname(currentDirectory);
@@ -40,14 +41,48 @@ const handleUserCommand = (command) => {
         consoleColors.green + currentDirectory + '>' + consoleColors.reset
       );
       break;
+    case 'cd':
+      const userPath = args.join('');
+      if (!userPath.length) {
+        console.log(
+          consoleColors.red +
+            'Error: Invalid input, you must specify correct path' +
+            consoleColors.reset
+        );
+        break;
+      }
+      const targetPath = resolve(currentDirectory, userPath);
+      try {
+        const stats = await stat(targetPath);
+        if (stats.isDirectory()) {
+          currentDirectory = targetPath;
+        } else {
+          console.log(
+            consoleColors.red +
+              `Error: ${targetPath} is not a directory` +
+              consoleColors.reset
+          );
+        }
+      } catch {
+        console.log(
+          consoleColors.red +
+            `Error: ${targetPath} not exist` +
+            consoleColors.reset
+        );
+      }
+
+      rl.setPrompt(
+        consoleColors.green + currentDirectory + '>' + consoleColors.reset
+      );
+      break;
   }
 };
 
-rl.on('line', (input) => {
+rl.on('line', async (input) => {
   if (input.trim() === '.exit') {
     handleExit();
   } else {
-    handleUserCommand(input);
+    await handleUserCommand(input);
     rl.prompt();
   }
 });
