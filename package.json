@@ -1,0 +1,20 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "file-manager for node rsschool course",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/outplayMe/node-file-manager.git"
+  },
+  "author": "Kiryl Shauhenia (outplayMe)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/outplayMe/node-file-manager/issues"
+  },
+  "homepage": "https://github.com/outplayMe/node-file-manager#readme"
+}
