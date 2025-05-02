@@ -111,5 +111,6 @@ const handleUserCommand = async (userInput) => {
       } catch (error) {
         console.log(error.message);
       }
+      break;
   }
 };
