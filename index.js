@@ -2,6 +2,7 @@ import { createInterface } from 'node:readline';
 import { stdin, stdout, argv, env } from 'node:process';
 import { dirname, resolve } from 'node:path';
 import { stat } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 import consoleColors from './colors.js';
 
 let currentDirectory = env.HOME;
@@ -85,5 +86,30 @@ const handleUserCommand = async (userInput) => {
         consoleColors.green + currentDirectory + '>' + consoleColors.reset
       );
       break;
+    case 'ls':
+      try {
+        const files = await readdir(currentDirectory, { withFileTypes: true });
+        const result = [];
+        for (const file of files) {
+          const fileInfo = {
+            name:
+              file.name.length > 20
+                ? file.name.slice(0, 20) + '...'
+                : file.name,
+            type: file.isDirectory() ? 'directory' : 'file',
+          };
+          result.push(fileInfo);
+        }
+        result.sort((a, b) =>
+          a.name.localeCompare(b, 'en', { sensitivity: 'base' })
+        );
+        result.sort((a, b) => {
+          if (a.type !== b.type && a.type === 'directory') return -1;
+        });
+
+        console.table(result);
+      } catch (error) {
+        console.log(error.message);
+      }
   }
 };
