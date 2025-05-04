@@ -1,11 +1,10 @@
 import { createInterface } from 'node:readline';
 import { stdin, stdout, argv, env } from 'node:process';
-import { dirname, resolve } from 'node:path';
+import { dirname, resolve, join } from 'node:path';
 import { stat } from 'node:fs/promises';
-import { readdir } from 'node:fs/promises';
+import { readdir, writeFile } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import consoleColors from './colors.js';
-import os from 'node:os';
 
 let currentDirectory = env.HOME;
 
@@ -130,5 +129,14 @@ const handleUserCommand = async (userInput) => {
       readStream.on('end', () => {
         rl.prompt();
       });
+      break;
+    case 'add':
+      const fileName = args.join('');
+      try {
+        await writeFile(join(currentDirectory, fileName), '', { flag: 'ax+' });
+        console.log('file created');
+      } catch (err) {
+        console.log('Operation failed\n', err.message);
+      }
   }
 };
