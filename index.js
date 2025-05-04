@@ -3,7 +3,9 @@ import { stdin, stdout, argv, env } from 'node:process';
 import { dirname, resolve } from 'node:path';
 import { stat } from 'node:fs/promises';
 import { readdir } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
 import consoleColors from './colors.js';
+import os from 'node:os';
 
 let currentDirectory = env.HOME;
 
@@ -112,5 +114,21 @@ const handleUserCommand = async (userInput) => {
         console.log(error.message);
       }
       break;
+    case 'cat':
+      const filePath = args.join('');
+      if (!filePath.length) {
+        console.log(
+          consoleColors.red +
+            'Error: Invalid input, you must specify correct path' +
+            consoleColors.reset
+        );
+        break;
+      }
+      const catPath = resolve(currentDirectory, filePath);
+      const readStream = createReadStream(catPath);
+      readStream.pipe(stdout);
+      readStream.on('end', () => {
+        rl.prompt();
+      });
   }
 };
