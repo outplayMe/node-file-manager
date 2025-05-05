@@ -1,8 +1,7 @@
 import { createInterface } from 'node:readline';
 import { stdin, stdout, argv, env } from 'node:process';
 import { dirname, resolve, join } from 'node:path';
-import { stat } from 'node:fs/promises';
-import { readdir, writeFile } from 'node:fs/promises';
+import { readdir, writeFile, stat, mkdir } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
 import consoleColors from './colors.js';
 
@@ -138,5 +137,14 @@ const handleUserCommand = async (userInput) => {
       } catch (err) {
         console.log('Operation failed\n', err.message);
       }
+      break;
+    case 'mkdir':
+      const userDirname = args.join('');
+      try {
+        await mkdir(join(currentDirectory, userDirname));
+      } catch (err) {
+        console.log('Operation failed\n', err.message);
+      }
+      break;
   }
 };
